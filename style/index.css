@@ -1,0 +1,45 @@
+body {
+	background-color: var(--background);
+	color: var(--text);
+	font-family: "Gamja_Flower", "Knewave", "DynaPuff";
+}
+
+#logo {
+	display: block;
+	width: 20%;
+	height: fit-content;
+	max-height: 3cm;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#title {
+	display: block;
+	width: fit-content;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 0;
+
+	color: var(--main);
+	font-size: 20px;
+}
+
+.board {
+	width: 100%;
+	height: fit-content;
+	border-radius: 32px;
+
+	background-color: var(--dim);
+	box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+}
+
+.board h1 {
+	margin: 5px;
+}
+
+.board:hover {
+	cursor: pointer;
+	background-color: var(--shade);
+	box-shadow: none;
+	transform: translate(1.95px, 1.95px);
+}
