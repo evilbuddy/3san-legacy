@@ -6,6 +6,7 @@ require("db.php");
 
 <html>
 <head>
+	<title>san〜san</title>
 	<link rel="stylesheet" href="style.css">
 	<link rel="icon" href="media/icon.ico">
 	<script src="script.js"></script>
