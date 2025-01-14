@@ -80,6 +80,14 @@ a:hover, .link:hover {
 	text-align: center;
 }
 
+#boards td {
+	padding-right: 10px;
+}
+
+.category {
+	font-weight: bold;
+}
+
 #post {
 	color: black;
 	width: 100%;

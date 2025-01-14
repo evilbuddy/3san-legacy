@@ -26,14 +26,32 @@ require("db.php");
 		<div class="title">
 			<h1>Boards</h1>
 		</div>
-		<?php
-			$boards = $db->query("SELECT * FROM boards");
-			foreach($boards as $board) {
-				$id = $board["id"];
-				$name = $board["name"];
-				echo "<a class=\"link\" href=\"board.php?id=" . $id . "\">" .$name . "</a>";
-			}
-		?>
-	</div>
+		<table id="boards"><tr>
+<?php
+
+$boards = $db->query("SELECT * FROM boards ORDER BY category");
+$category = "";
+
+foreach($boards as $board) {
+	if($category != $board["category"]) {
+		if($category != "") {
+			echo "</td>";
+		}
+
+		$category = $board["category"];
+
+		echo "<td><p class=\"category\">" . $category . "</p>";
+	}
+
+	$id = $board["id"];
+	$name = $board["name"];
+	echo "<a class=\"link\" href=\"board.php?id=" . $id . "\">" .$name . "</a><br>";
+}
+
+?>
+		</tr>
+		</table>
+	</div>
 </body>
 </html>
+
