@@ -1,5 +1,5 @@
 *.kra*
 *~*
 db.sqlite
-uploads/
+uploads/*.webp
 old/
