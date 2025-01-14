@@ -11,7 +11,7 @@ require("db.php");
 	<script src="script.js"></script>
 </head>
 
-<body>
+<body style="width:60em">
 	<img src="media/logo.svg">
 
 	<div class="window">
@@ -29,12 +29,11 @@ require("db.php");
 		<?php
 			$boards = $db->query("SELECT * FROM boards");
 			foreach($boards as $board) {
-				$id = $board->id;
-				$name = $board->name;
-				echo `<a href=board.php?id="${id}">${name}</a>`;
+				$id = $board["id"];
+				$name = $board["name"];
+				echo "<a class=\"link\" href=\"board.php?id=" . $id . "\">" .$name . "</a>";
 			}
 		?>
-		<a class="link" href="board.php?id=g">Technology</a>
-	</div>
+	</div>
 </body>
 </html>

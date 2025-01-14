@@ -1,12 +1,17 @@
+:root {
+	--color-main: hsl(315, 46%, 88%);
+	--color-fade: hsl(315, 100%, 96%);}
+
 body {
 	display: block;
-	min-width: 750px;
 	min-height: 100vh;
-	width: 60em;
+	max-width: 95vw;
 	margin-left: auto;
 	margin-right: auto;
+	margin-top: 0;
+	margin-bottom: 0;
 
-	background-image: linear-gradient(hsl(315, 46%, 88%), hsl(315, 100%, 97%) 10%);
+	background-image: linear-gradient(var(--color-main), var(--color-fade) 10%);
 	background-size: 100vw 100%;
 
 	font-family: arial, helvetica, clean, sans-serif;
@@ -33,7 +38,7 @@ body img {
 	padding: 5px;
 	margin-bottom: 2px;
 
-	background-color: hsl(315, 46%, 88%);
+	background-color: var(--color-main);
 }
 
 .window .title img {
@@ -42,12 +47,12 @@ body img {
 	cursor: pointer;
 }
 
-.link {
+a, .link {
 	cursor: pointer;
 	text-decoration: none;
 }
 
-.link:hover {
+a:hover, .link:hover {
 	text-decoration: underline;
 }
 
@@ -72,7 +77,8 @@ body img {
 }
 
 .title {
-	text-align: center;}
+	text-align: center;
+}
 
 #post {
 	color: black;
@@ -102,6 +108,10 @@ body img {
 	text-align: center;
 }
 
+.post {
+	overflow: auto;
+}
+
 .post .image {
 	float: left;
 	width: fit-content;
@@ -120,7 +130,7 @@ body img {
 }
 
 .post h1 {
-	font-size: 90%;
+	font-size: 110%;
 }
 
 .post h1 p {
@@ -128,4 +138,79 @@ body img {
 	margin: 0 5px;
 	
 	font-weight: normal;
+}
+
+.post .comment {
+	font-size: 110%;
+}
+
+#reply {
+	position: absolute;
+}
+
+#reply form {
+	color: black;
+	width: 100%;
+}
+
+#reply table {
+	width: 100%;
+}
+
+#reply th {
+	padding-left: 5px;
+	text-align: left;
+
+	background-color: #9988EE;
+	border: 1px solid black;
+}
+
+#reply td input, textarea {
+	width: 100%;
+	height: 100%;
+	margin: -1px 0;
+	resize: both;
+}
+
+#reply input[type="submit"] {
+	text-align: center;
+}
+
+.reply {
+	overflow: auto;
+	margin-left: 5%;
+	margin-bottom: 5px;;
+	background-color: var(--color-main);
+}
+
+.reply .image {
+	float: left;
+	width: fit-content;
+	margin: 5px;
+}
+
+.reply .image p, a {
+	width: fit-content;
+	margin: 0
+}
+
+.reply .image img {
+	max-width: 30vw;
+	max-height: 20em;
+	margin: 0;
+}
+
+.reply h1 {
+	font-size: 110%;
+}
+
+.reply h1 p {
+	display: inline;
+	margin: 0 5px;
+	
+	font-weight: normal;
+}
+
+.reply .comment {
+	font-size: 110%;
 }

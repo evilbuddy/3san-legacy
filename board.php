@@ -3,21 +3,42 @@
 <?php
 require("db.php");
 
-if($_POST["Name"] && $_POST["Comment"] && $_FILES["File"]) {
+if(isset($_POST["Comment"]) && file_exists($_FILES["File"]["tmp_name"])) {
+	$name == "Anonymous";
+
+	if(isset($_POST["Name"])) {
+		$name = $_POST["Name"];
+	}
+
 	$r = $db->prepare("INSERT INTO threads
 		(board, timestamp, name, comment)
 		VALUES (:b, :t, :n, :c)");
-	$p = $r->execute([
+	$r->execute([
 		":b" => $_POST["Board"],
 		":t" => time(),
-		":n" => $_POST["Name"],
+		":n" => $name,
 		":c" => $_POST["Comment"]
 	]);
 
-	if(getimagesize($_FILES["File"]["tmp_name"])) {
-		$image = imagecreatefromjpeg($_FILES["File"]["tmp_name"]);
-		imagewebp($image, "uploads/" . $p["id"] . ".webp");
-	}
+	$p = $db->prepare("SELECT * FROM threads WHERE board = :b AND name = :n AND comment = :c");
+	$p->execute([
+		":b" => $_POST["Board"],
+		":n" => $name,
+		":c" => $_POST["Comment"]
+	]);
+
+	$type = mime_content_type($_FILES["File"]["tmp_name"]);
+	$convert = [
+		"image/bmp" => function($filename) { return imagecreatefrombmp($filename); },
+		"image/gif" => function($filename) { return imagecreatefromgif($filename); },
+		"image/png" => function($filename) { return imagecreatefrompng($filename); },
+		"image/tga" => function($filename) { return imagecreatefromtga($filename); },
+		"image/avif" => function($filename) { return imagecreatefromavif($filename); },
+		"image/jpeg" => function($filename) { return imagecreatefromjpeg($filename); },
+		"image/webp" => function($filename) { return imagecreatefromwebp($filename); }
+	];
+
+	imagewebp($convert[$type]($_FILES["File"]["tmp_name"]), "uploads/threads/" . $p->fetch()["id"] . ".webp");
 }
 ?>
 
@@ -26,11 +47,11 @@ if($_POST["Name"] && $_POST["Comment"] && $_FILES["File"]) {
 <?php
 $id = $_GET["id"];
 
-$q = $db->prepare("SELECT * FROM boards WHERE id = ?");
-$q->execute([$id]);
-$name = $q->fetchAll()[0]["name"];
+$boardr= $db->prepare("SELECT * FROM boards WHERE id = ?");
+$boardr->execute([$id]);
+$board = $boardr->fetch();
 
-echo "<title>[". $id . "] - " . $name . " - 3san</title>";
+echo "<title>[". $id . "] - " . $board["name"] . " - 3san</title>";
 ?>
 	<link rel="stylesheet" href="style.css">
 	<link rel="icon" href="media/icon.ico">
@@ -39,7 +60,7 @@ echo "<title>[". $id . "] - " . $name . " - 3san</title>";
 
 <body>
 	<img src="media/logo.svg">
-<?php echo "<h1 class=\"title\">/" . $id . "/ - " . $name . "</h1>"; ?>
+<?php echo "<h1 class=\"title\">/" . $id . "/ - " . $board["name"] . "</h1>"; ?>
 <h1 class="title link" onclick="showPostForm(this)">[Start a New Thread]</h1>
 <form id="post" class="hidden" method="POST" enctype="multipart/form-data">
 	<table>
@@ -62,21 +83,31 @@ echo "<title>[". $id . "] - " . $name . " - 3san</title>";
 
 <?php
 
+$page = 1;
 $min = 0;
 $max = 15;
 
-if($_GET["page"]) {
-	$min = ($_GET["page"] - 1) * $max;
+if(isset($_GET["page"])) {
+	$page = $_GET["page"];
 }
 
-$posts = $db->prepare("SELECT * FROM threads WHERE board = ? LIMIT " . $min . ", " . $max);
-$posts->execute([$_GET["id"]]);
+$min = ($page - 1) * $max;
+
+$posts = $db->prepare("SELECT * FROM threads WHERE board = :b LIMIT :min, :max");
+$posts->execute([
+	":b" => $_GET["id"],
+	":min" => $min,
+	":max" => $max
+]);
 
 foreach($posts as $post) {
-	$image = "uploads/" . $post["id"] . ".webp";
+	$image = "uploads/threads/" . $post["id"] . ".webp";
 	$dimensions = getimagesize($image)[0] . "x" . getimagesize($image)[1];
 
-	$timestamp = date("d/m/y H:i:s (e)");
+	$timestamp = date("d/m/y H:i:s (e)", $post["timestamp"]);
+
+	$replies = $db->prepare("SELECT COUNT(*) FROM replies WHERE thread = ?");
+	$replies->execute([$post["id"]]);
 	
 	$units = array("B", "KB", "MB");
 	$bytes = max(filesize($image), 0);
@@ -93,11 +124,43 @@ foreach($posts as $post) {
 	echo "<h1><a class=\"link\" href=\"thread.php?id=" . $post["id"] . "\">" . $post["name"] . "</a>";
 	echo "<p>" . $timestamp . "</p>";
 	echo "<p>#" . $post["id"] . "</p>";
+	echo "<p>(" . $replies->fetch()[0] . ")</p>";
 	echo "</h1>";
-	echo "<p>" . nl2br($post["comment"]) . "</p>";
+	echo "<p class=\"comment\">" . nl2br($post["comment"]) . "</p>";
 	echo "</div>";
 }
 
+echo "<p>";
+echo "<a";
+if($page > 1) {
+	$url = $_SERVER["REQUEST_URI"];
+	$np = str_replace("page=" . $_GET["page"], "page=" . $_GET["page"] - 1, $url);
+
+	echo " href=\"" . $np . "\"";
+}
+echo "><</a>";
+
+$pagesr = $db->prepare("SELECT COUNT(*) FROM threads WHERE board = :b");
+$pagesr->execute([
+	":b" => $_GET["id"],
+
+]);
+$posts = $pagesr->fetch()[0];
+$pages = ceil($pages / 15);
+
+echo " ";
+echo $pages;
+echo " ";
+
+echo "<a";
+if($page < $pages) {
+	$url = $_SERVER["REQUEST_URI"];
+	$np = str_replace("page=" . $_GET["page"], "page=" . $_GET["page"] + 1, $url);
+
+	echo " href=\"" . $np . "\"";
+}
+echo ">></a>";
+echo "</p>";
 ?>
 </body>
 </html>
