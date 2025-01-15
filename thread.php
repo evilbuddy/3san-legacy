@@ -45,7 +45,7 @@ if(isset($_POST["Comment"])) {
 			"image/webp" => function($filename) { return imagecreatefromwebp($filename); }
 		];
 
-		imagewebp($convert[$type]($_FILES["File"]["tmp_name"]), "uploads/threads/" . $p->fetch()["id"] . ".webp");
+		imagewebp($convert[$type]($_FILES["File"]["tmp_name"]), "uploads/replies/" . $p->fetch()["id"] . ".webp");
 	}
 }
 ?>
