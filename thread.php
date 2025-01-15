@@ -194,7 +194,7 @@ if($page > 1) {
 	echo "<a href=\"" . $np . "\">[prev]</a>";
 }
 
-$pagesr = $db->prepare("SELECT COUNT(*) FROM threads WHERE board = :b");
+$pagesr = $db->prepare("SELECT COUNT(*) FROM replies WHERE thread = :b");
 $pagesr->execute([
 	":b" => $_GET["id"],
 
