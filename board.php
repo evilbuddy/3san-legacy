@@ -6,7 +6,7 @@ require("db.php");
 if(isset($_POST["Comment"]) && file_exists($_FILES["File"]["tmp_name"])) {
 	$name == "Anonymous";
 
-	if(isset($_POST["Name"])) {
+	if(isset($_POST["Name"]) && trim($_POST["Name"]) != "") {
 		$name = $_POST["Name"];
 	}
 
@@ -84,27 +84,25 @@ echo "<title>[". $id . "] - " . $board["name"] . " - 3san</title>";
 <?php
 
 $page = 1;
-$min = 0;
-$max = 15;
 
 if(isset($_GET["page"])) {
 	$page = $_GET["page"];
 }
 
+$max = 15;
 $min = ($page - 1) * $max;
 
 $posts = $db->prepare("SELECT * FROM threads WHERE board = :b LIMIT :min, :max");
-$posts->execute([
-	":b" => $_GET["id"],
-	":min" => $min,
-	":max" => $max
-]);
+$posts->bindParam(":b", $_GET["id"], PDO::PARAM_STR);
+$posts->bindParam(":min", $min, PDO::PARAM_INT);
+$posts->bindParam(":max", $max, PDO::PARAM_INT);
+$posts->execute();
 
 foreach($posts as $post) {
 	$image = "uploads/threads/" . $post["id"] . ".webp";
 	$dimensions = getimagesize($image)[0] . "x" . getimagesize($image)[1];
 
-	$timestamp = date("d/m/y H:i:s (e)", $post["timestamp"]);
+	$timestamp = new DateTime("@" . $post["timestamp"], new DateTimeZone("UTC"));
 
 	$replies = $db->prepare("SELECT COUNT(*) FROM replies WHERE thread = ?");
 	$replies->execute([$post["id"]]);
@@ -122,7 +120,7 @@ foreach($posts as $post) {
 	echo "<img src=\"" . $image . "\">";
 	echo "</div>";
 	echo "<h1><a class=\"link\" href=\"thread.php?id=" . $post["id"] . "\">" . $post["name"] . "</a>";
-	echo "<p>" . $timestamp . "</p>";
+	echo "<p>" . $timestamp->format("d/m/y H:i:s") . " (UTC)</p>";
 	echo "<p>#" . $post["id"] . "</p>";
 	echo "<p>(" . $replies->fetch()[0] . ")</p>";
 	echo "</h1>";
@@ -145,7 +143,7 @@ $pagesr->execute([
 	":b" => $_GET["id"],
 
 ]);
-$posts = $pagesr->fetch()[0];
+$pages = $pagesr->fetch()[0];
 $pages = ceil($pages / 15);
 
 echo " ";

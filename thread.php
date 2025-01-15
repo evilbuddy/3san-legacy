@@ -7,7 +7,7 @@ if(isset($_POST["Comment"])) {
 	$i = 0;
 	$name = "Anonymous";
 
-	if(isset($_POST["Name"])) {
+	if(isset($_POST["Name"]) && trim($_POST["Name"]) != "") {
 		$name = $_POST["Name"];
 	}
 
@@ -127,23 +127,25 @@ echo "<p class=\"comment\">" . nl2br($post["comment"]) . "</p>";
 echo "</div>";
 
 $page = 1;
-$min = 0;
-$max = 15;
 
 if(isset($_GET["page"])) {
 	$page = $_GET["page"];
 }
 
+$max = 15;
 $min = ($page - 1) * $max;
 
-$posts = $db->prepare("SELECT * FROM replies WHERE thread = ? LIMIT " . $min . ", " . $max);
-$posts->execute([$_GET["id"]]);
+$posts = $db->prepare("SELECT * FROM replies WHERE thread = :b LIMIT :min, :max");
+$posts->bindParam(":b", $_GET["id"], PDO::PARAM_STR);
+$posts->bindParam(":min", $min, PDO::PARAM_INT);
+$posts->bindParam(":max", $max, PDO::PARAM_INT);
+$posts->execute();
 
 foreach($posts as $post) {
 	$image = "uploads/replies/" . $post["id"] . ".webp";
 	$dimensions = getimagesize($image)[0] . "x" . getimagesize($image)[1];
 
-	$timestamp = date("d/m/y H:i:s (e)");
+	$timestamp = new DateTime("@" . $post["timestamp"], new DateTimeZone("UTC"));
 	
 	$units = array("B", "KB", "MB");
 	$bytes = max(filesize($image), 0);
@@ -162,7 +164,7 @@ foreach($posts as $post) {
 	}
 
 	echo "<h1><a href=\"thread.php?id=" . $post["id"] . "\">" . $post["name"] . "</a>";
-	echo "<p>" . $timestamp . "</p>";
+	echo "<p>" . $timestamp->format("d/m/y H:i:s") . " (UTC)</p>";
 	echo "<a href=\"javascript:addReply('" . $post["id"] . "')\">#" . $post["id"] . "</a>";
 	echo "</h1>";
 	echo "<p>";
