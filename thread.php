@@ -56,7 +56,7 @@ if(isset($_POST["Comment"])) {
 $id = $_GET["id"];
 
 $postr = $db->prepare("SELECT * FROM threads WHERE id = ?");
-$postr->execute([$_GET["id"]]);
+$postr->execute([$id]);
 $post = $postr->fetch();
 
 $boardr = $db->prepare("SELECT * FROM boards WHERE id = ?");
@@ -137,7 +137,7 @@ $max = 15;
 $min = ($page - 1) * $max;
 
 $posts = $db->prepare("SELECT * FROM replies WHERE thread = :b LIMIT :min, :max");
-$posts->bindParam(":b", $_GET["id"], PDO::PARAM_STR);
+$posts->bindParam(":b", $id, PDO::PARAM_STR);
 $posts->bindParam(":min", $min, PDO::PARAM_INT);
 $posts->bindParam(":max", $max, PDO::PARAM_INT);
 $posts->execute();
@@ -194,11 +194,8 @@ if($page > 1) {
 	echo "<a href=\"" . $np . "\">[prev]</a>";
 }
 
-$pagesr = $db->prepare("SELECT COUNT(*) FROM replies WHERE thread = :b");
-$pagesr->execute([
-	":b" => $_GET["id"],
-
-]);
+$pagesr = $db->prepare("SELECT COUNT(*) FROM replies WHERE thread = ?");
+$pagesr->execute([$id]);
 $pages = ceil($pagesr->fetch()[0] / 15);
 
 echo " page " . $page . "/" . $pages . " ";

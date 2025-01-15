@@ -94,7 +94,7 @@ $max = 15;
 $min = ($page - 1) * $max;
 
 $posts = $db->prepare("SELECT * FROM threads WHERE board = :b LIMIT :min, :max");
-$posts->bindParam(":b", $_GET["id"], PDO::PARAM_STR);
+$posts->bindParam(":b", $id, PDO::PARAM_STR);
 $posts->bindParam(":min", $min, PDO::PARAM_INT);
 $posts->bindParam(":max", $max, PDO::PARAM_INT);
 $posts->execute();
@@ -138,10 +138,7 @@ if($page > 1) {
 }
 
 $pagesr = $db->prepare("SELECT COUNT(*) FROM threads WHERE board = :b");
-$pagesr->execute([
-	":b" => $_GET["id"],
-
-]);
+$pagesr->execute([$id]);
 $pages = ceil($pagesr->fetch()[0] / 15);
 
 echo " page " . $page . "/" . $pages . " ";
