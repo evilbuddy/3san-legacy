@@ -26,6 +26,12 @@ body img {
 	margin-right: auto;
 }
 
+#home {
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
 .window {
 	padding: 5px;
 	margin-bottom: 10px;
@@ -49,6 +55,7 @@ body img {
 }
 
 a, .link {
+	color: inherit;
 	cursor: pointer;
 	text-decoration: none;
 }

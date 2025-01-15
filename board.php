@@ -59,6 +59,7 @@ echo "<title>[". $id . "] - " . $board["name"] . " - 3san</title>";
 </head>
 
 <body>
+	<a id="home" class="link" href="index.php">[home]</a>
 	<img src="media/logo.svg">
 <?php echo "<h1 class=\"title\">/" . $id . "/ - " . $board["name"] . "</h1>"; ?>
 <h1 class="title link" onclick="showPostForm(this)">[Start a New Thread]</h1>
@@ -136,7 +137,7 @@ if($page > 1) {
 
 	echo " href=\"" . $np . "\"";
 }
-echo "><</a>";
+echo ">[prev]</a>";
 
 $pagesr = $db->prepare("SELECT COUNT(*) FROM threads WHERE board = :b");
 $pagesr->execute([
@@ -146,9 +147,7 @@ $pagesr->execute([
 $pages = $pagesr->fetch()[0];
 $pages = ceil($pages / 15);
 
-echo " ";
-echo $pages;
-echo " ";
+echo " page " . $page . "/" . $pages . " ";
 
 echo "<a";
 if($page < $pages) {
@@ -157,7 +156,7 @@ if($page < $pages) {
 
 	echo " href=\"" . $np . "\"";
 }
-echo ">></a>";
+echo "[next]></a>";
 echo "</p>";
 ?>
 </body>
