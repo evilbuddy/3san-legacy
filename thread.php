@@ -136,7 +136,7 @@ if(isset($_GET["page"])) {
 $max = 15;
 $min = ($page - 1) * $max;
 
-$posts = $db->prepare("SELECT * FROM replies WHERE thread = :b LIMIT :min, :max");
+$posts = $db->prepare("SELECT * FROM replies WHERE thread = :b ORDER BY timestamp DESC LIMIT :min, :max");
 $posts->bindParam(":b", $id, PDO::PARAM_STR);
 $posts->bindParam(":min", $min, PDO::PARAM_INT);
 $posts->bindParam(":max", $max, PDO::PARAM_INT);
