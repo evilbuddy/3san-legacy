@@ -27,9 +27,9 @@ if(isset($_POST["Comment"])) {
 	]);
 
 	if($i != 0) {
-		$p = $db->prepare("SELECT * FROM threads WHERE board = :b AND name = :n AND comment = :c");
+		$p = $db->prepare("SELECT * FROM replies WHERE thread = :b AND name = :n AND comment = :c");
 		$p->execute([
-			":b" => $_POST["Board"],
+			":b" => $_POST["Thread"],
 			":n" => $name,
 			":c" => $_POST["Comment"]
 		]);
@@ -106,7 +106,7 @@ echo "<h1> Reply to Thread #" . $id . "</h1>"
 $image = "uploads/threads/" . $post["id"] . ".webp";
 $dimensions = getimagesize($image)[0] . "x" . getimagesize($image)[1];
 
-$timestamp = date("d/m/y H:i:s (e)", $post["timestamp"]);
+$timestamp = date("d/m/y H:i:s (UTC)", $post["timestamp"]);
 	
 $units = array("B", "KB", "MB");
 $bytes = max(filesize($image), 0);
@@ -120,7 +120,7 @@ echo "<div class=\"image\">";
 echo "<p><a href=\"" . $image . "\">File</a> (" . $size . ", " . $dimensions . ")</p>";
 echo "<img src=\"" . $image . "\">";
 echo "</div>";
-echo "<h1><a href=\"thread.php?id=" . $post["id"] . "\">" . $post["name"] . "</a>";
+echo "<h1><p>" . $post["name"] . "</p>";
 echo "<p>" . $timestamp . "</p>";
 echo "<p>#" . $post["id"] . "</p>";
 echo "</h1>";
@@ -164,7 +164,7 @@ foreach($posts as $post) {
 		echo "</div>";
 	}
 
-	echo "<h1><a href=\"thread.php?id=" . $post["id"] . "\">" . $post["name"] . "</a>";
+	echo "<h1><p>" . $post["name"] . "</a>";
 	echo "<p>" . $timestamp->format("d/m/y H:i:s") . " (UTC)</p>";
 	echo "<a href=\"javascript:addReply('" . $post["id"] . "')\">#" . $post["id"] . "</a>";
 	echo "</h1>";
