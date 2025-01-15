@@ -130,33 +130,28 @@ foreach($posts as $post) {
 }
 
 echo "<p>";
-echo "<a";
 if($page > 1) {
 	$url = $_SERVER["REQUEST_URI"];
 	$np = str_replace("page=" . $_GET["page"], "page=" . $_GET["page"] - 1, $url);
 
-	echo " href=\"" . $np . "\"";
+	echo "<a href=\"" . $np . "\">[prev]</a>";
 }
-echo ">[prev]</a>";
 
 $pagesr = $db->prepare("SELECT COUNT(*) FROM threads WHERE board = :b");
 $pagesr->execute([
 	":b" => $_GET["id"],
 
 ]);
-$pages = $pagesr->fetch()[0];
-$pages = ceil($pages / 15);
+$pages = ceil($pagesr->fetch()[0] / 15);
 
 echo " page " . $page . "/" . $pages . " ";
 
-echo "<a";
 if($page < $pages) {
 	$url = $_SERVER["REQUEST_URI"];
 	$np = str_replace("page=" . $_GET["page"], "page=" . $_GET["page"] + 1, $url);
 
-	echo " href=\"" . $np . "\"";
+	echo "<a href=\"" . $np . "\">[next]</a>";
 }
-echo "[next]></a>";
 echo "</p>";
 ?>
 </body>
