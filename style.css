@@ -90,6 +90,7 @@ a:hover, .link:hover {
 
 #boards td {
 	padding-right: 10px;
+	vertical-align: top;
 }
 
 .category {
