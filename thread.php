@@ -16,14 +16,15 @@ if(isset($_POST["Comment"])) {
 	}
 
 	$r = $db->prepare("INSERT INTO replies
-		(thread, image, timestamp, name, comment)
-		VALUES (:b, :i, :t, :n, :c)");
+		(thread, image, timestamp, name, comment, ip)
+		VALUES (:b, :i, :t, :n, :c, :i)");
 	$p = $r->execute([
 		":b" => $_POST["Thread"],
 		":i" => $i,
 		":t" => time(),
 		":n" => $name,
-		":c" => $_POST["Comment"]
+		":c" => $_POST["Comment"],
+		":i" => $_SERVER['REMOTE_ADDR']
 	]);
 
 	if($i != 0) {
@@ -136,7 +137,24 @@ if(isset($_GET["page"])) {
 $max = 15;
 $min = ($page - 1) * $max;
 
-$posts = $db->prepare("SELECT * FROM replies WHERE thread = :b ORDER BY timestamp DESC LIMIT :min, :max");
+$admin = 0;
+
+if(isset($_COOKIE["account"])) {
+	$req = $db->prepare("SELECT * FROM users WHERE token = ?");
+	$req->execute([$_COOKIE["account"]]);
+
+	if($req->fetch()["admin"] == 1) {
+		$admin = 1;
+	}
+}
+
+if($admin == 0) { 
+	$posts = $db->prepare("SELECT * FROM replies WHERE thread = :b AND hidden = 0 ORDER BY timestamp DESC LIMIT :min, :max");
+} else {
+	$posts = $db->prepare("SELECT * FROM replies WHERE thread = :b ORDER BY timestamp DESC LIMIT :min, :max");
+}
+
+$posts = $db->prepare("");
 $posts->bindParam(":b", $id, PDO::PARAM_STR);
 $posts->bindParam(":min", $min, PDO::PARAM_INT);
 $posts->bindParam(":max", $max, PDO::PARAM_INT);

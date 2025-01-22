@@ -11,13 +11,14 @@ if(isset($_POST["Comment"]) && file_exists($_FILES["File"]["tmp_name"])) {
 	}
 
 	$r = $db->prepare("INSERT INTO threads
-		(board, timestamp, name, comment)
-		VALUES (:b, :t, :n, :c)");
+		(board, timestamp, name, comment, ip)
+		VALUES (:b, :t, :n, :c, :i)");
 	$r->execute([
 		":b" => $_POST["Board"],
 		":t" => time(),
 		":n" => $name,
-		":c" => $_POST["Comment"]
+		":c" => $_POST["Comment"],
+		":i" => $_SERVER['REMOTE_ADDR']
 	]);
 
 	$p = $db->prepare("SELECT * FROM threads WHERE board = :b AND name = :n AND comment = :c");
@@ -46,8 +47,18 @@ if(isset($_POST["Comment"]) && file_exists($_FILES["File"]["tmp_name"])) {
 <head>
 <?php
 $id = $_GET["id"];
+$admin = 0;
 
-$boardr= $db->prepare("SELECT * FROM boards WHERE id = ?");
+if(isset($_COOKIE["account"])) {
+	$req = $db->prepare("SELECT * FROM users WHERE token = ?");
+	$req->execute([$_COOKIE["account"]]);
+
+	if($req->fetch()["admin"] == 1) {
+		$admin = 1;
+	}
+}
+
+$boardr = $db->prepare("SELECT * FROM boards WHERE id = ?");
 $boardr->execute([$id]);
 $board = $boardr->fetch();
 
@@ -93,7 +104,12 @@ if(isset($_GET["page"])) {
 $max = 15;
 $min = ($page - 1) * $max;
 
-$posts = $db->prepare("SELECT * FROM threads WHERE board = :b ORDER BY timestamp DESC LIMIT :min, :max");
+if($admin == 0) { 
+	$posts = $db->prepare("SELECT * FROM threads WHERE board = :b AND hidden = 0 ORDER BY timestamp DESC LIMIT :min, :max");
+} else {
+	$posts = $db->prepare("SELECT * FROM boards WHERE board = :b ORDER BY timestamp DESC LIMIT :min, :max");
+}
+
 $posts->bindParam(":b", $id, PDO::PARAM_STR);
 $posts->bindParam(":min", $min, PDO::PARAM_INT);
 $posts->bindParam(":max", $max, PDO::PARAM_INT);
@@ -137,7 +153,12 @@ if($page > 1) {
 	echo "<a href=\"" . $np . "\">[prev]</a>";
 }
 
-$pagesr = $db->prepare("SELECT COUNT(*) FROM threads WHERE board = :b");
+if($admin == 0) {
+	$pagesr = $db->prepare("SELECT COUNT(*) FROM threads WHERE board = ? AND hidden = 0");
+} else {
+	$pagesr = $db->prepare("SELECT COUNT(*) FROM threads WHERE board = ?");
+}
+
 $pagesr->execute([$id]);
 $pages = ceil($pagesr->fetch()[0] / 15);
 
