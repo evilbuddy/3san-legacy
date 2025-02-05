@@ -4,7 +4,7 @@
 require("db.php");
 
 if(isset($_POST["Comment"]) && file_exists($_FILES["File"]["tmp_name"])) {
-	$name == "Anonymous";
+	$name = "Anonymous";
 
 	if(isset($_POST["Name"]) && trim($_POST["Name"]) != "") {
 		$name = $_POST["Name"];
